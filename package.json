@@ -1,0 +1,28 @@
+{
+  "name": "task-tracker",
+  "version": "1.0.0",
+  "description": "track-your-tasks",
+  "homepage": "https://github.com/adriano-andria/student-task-tracker#readme",
+  "bugs": {
+    "url": "https://github.com/adriano-andria/student-task-tracker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adriano-andria/student-task-tracker.git"
+  },
+  "license": "ISC",
+  "author": "Adriano",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
