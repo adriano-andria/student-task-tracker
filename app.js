@@ -19,8 +19,100 @@ app.get("/register", function (req, res) {
   res.redirect("/register.html");
 });
 
+// Dynamic dashboard
 app.get("/dashboard", function (req, res) {
-  res.redirect("/dashboard.html");
+  let taskItemsHtml = "";
+  for (let i = 0; i < tasks.length; i = i + 1) {
+    const task = tasks[i];
+
+    taskItemsHtml =
+      taskItemsHtml +
+      `<li>
+        <a href="/tasks/${task.id}">${task.title}</a>
+      </li>`;
+  }
+
+  let emptyStateHtml = "";
+  if (tasks.length === 0) {
+    emptyStateHtml =
+      '<p class="empty-state">No tasks yet.</p>';
+  }
+
+  res.send(`
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <title>Task Tracker Dashboard</title>
+        <link rel="stylesheet" href="/styles.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+
+      <body>
+        <header class="site-header">
+          <h1>Task Tracker</h1>
+          <nav class="site-nav" aria-label="Primary navigation">
+            <ul class="nav-list">
+              <li><a href="/index.html">Login</a></li>
+              <li><a href="/register.html">Register</a></li>
+              <li><a href="/dashboard" aria-current="page">Dashboard</a></li>
+            </ul>
+          </nav>
+        </header>
+
+        <main class="site-main" id="main">
+          <h2>Dashboard</h2>
+
+          <div class="dashboard-grid">
+            <section class="panel" aria-labelledby="add-task-title">
+              <h3 id="add-task-title">Add a task</h3>
+
+              <form class="auth-form" action="/tasks" method="post">
+                <p>Create a new task</p>
+
+                <div class="field">
+                  <label for="task-name">Task name:</label>
+                  <input
+                    id="task-name"
+                    name="title"
+                    type="text"
+                    required
+                    autocomplete="off"
+                    placeholder="e.g., Finish Hand-in 1"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="task-due">Due date:</label>
+                  <input id="task-due" name="due" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="task-priority">Priority</label>
+                  <select id="task-priority" name="priority" required>
+                    <option value="">Select priority…</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+
+                <button class="btn" type="submit">Add task</button>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="task-list-title">
+              <h3 id="task-list-title">Your Tasks</h3>
+              ${emptyStateHtml}
+              <ul class="task-list" aria-label="Task list">
+                ${taskItemsHtml}
+              </ul>
+            </section>
+          </div>
+        </main>
+      </body>
+    </html>
+  `);
 });
 
 // Dynamic route
