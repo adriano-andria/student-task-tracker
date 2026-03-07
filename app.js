@@ -5,8 +5,6 @@ const PORT = 3000;
 
 app.use(express.urlencoded({ extended: false }));
 
-app.use(express.static("public"));
-
 const tasks = [];
 let nextId = 1;
 
@@ -17,6 +15,10 @@ app.get("/", function (req, res) {
 
 app.get("/register", function (req, res) {
   res.redirect("/register.html");
+});
+
+app.get("/dashboard.html", function (req, res) {
+  res.redirect("/dashboard");
 });
 
 // Dynamic dashboard
@@ -149,7 +151,7 @@ app.get("/tasks/:id", function (req, res) {
       </head>
       <body>
         <main class="site-main" id="main">
-          <h2>Task Details (Dynamic Route)</h2>
+          <h2>Task Details</h2>
           <div class="auth-form">
             <p><strong>ID:</strong> ${task.id}</p>
             <p><strong>Title:</strong> ${task.title}</p>
@@ -186,6 +188,8 @@ app.post("/tasks", function (req, res) {
 
   res.redirect("/tasks/" + newTask.id);
 });
+
+app.use(express.static("public"));
 
 app.listen(PORT, function () {
   console.log("Task Tracker running at http://localhost:" + PORT);
