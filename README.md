@@ -54,3 +54,34 @@ The site is responsive using CSS media queries (breakpoints):
 - **900px and up**
   - Page padding increases for larger screens.
   - Dashboard layout switches to two columns.
+
+
+# (Hand-in 2)
+
+## Overview
+This project now runs as a simple Node/Express web app.
+
+Current functionality:
+- Serves the static pages from `public/` (Login + Register pages still exist as static HTML)
+- Provides a **server-rendered** Dashboard at `/dashboard` that lists tasks
+- Supports creating tasks via a form POST and viewing a task details page
+- Uses **in-memory storage** (tasks reset when the server restarts)
+
+## Routes
+Page / UI routes:
+- `GET /` → redirects to `/index.html`
+- `GET /register` → redirects to `/register.html`
+- `GET /dashboard` → dynamic dashboard page (server-rendered HTML)
+- `GET /dashboard.html` → redirects to `/dashboard`
+
+Task routes:
+- `POST /tasks` → create a task, then redirect to `/tasks/:id`
+- `GET /tasks/:id` → view a single task (404 if not found)
+
+## How to run (Express version)
+1. Install Node.js (version 18 or newer).
+2. Download/clone this project and open a terminal in the project folder.
+3. Install dependencies: npm install
+4. Start the server: npm run dev
+5. Open in your browser: http://localhost:3000/
+
