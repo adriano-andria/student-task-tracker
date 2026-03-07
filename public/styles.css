@@ -22,7 +22,6 @@ a:hover {
 }
 
 /* Header / Navigation */
-
 .site-header {
   padding: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -33,7 +32,7 @@ a:hover {
 }
 
 .nav-list {
-  list-style: none; 
+  list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
@@ -66,17 +65,15 @@ a:hover {
 }
 
 /*  Main area  */
-
 .site-main {
   padding: 16px;
 }
 
 .site-main h2 {
-  margin-top: 0; 
+  margin-top: 0;
 }
 
 /* Forms (Login/Register/Add Task) */
-
 .auth-form {
   background-color: #24103f;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -126,7 +123,6 @@ a:hover {
 }
 
 /* Buttons */
-
 .btn {
   font: inherit;
   padding: 10px 14px;
@@ -148,7 +144,6 @@ a:hover {
 }
 
 /*  Dashboard layout  */
-
 .dashboard-grid {
   display: flex;
   flex-direction: column;
@@ -171,14 +166,50 @@ a:hover {
   color: #d9d2ee;
 }
 
+/* Task list layout */
 .task-list {
   list-style: none;
   padding: 0;
   margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-item {
+  background-color: #24103f;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.task-title {
+  display: inline-block;
+  color: #f4f1ff;
+  text-decoration: none;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.task-title:hover {
+  text-decoration: underline;
+}
+
+.task-title:focus {
+  outline: 3px solid #f2c7ff;
+  outline-offset: 2px;
+}
+
+.task-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #d9d2ee;
+  font-size: 0.95rem;
 }
 
 /*  Responsive breakpoints  */
-
 @media (min-width: 600px) {
   .nav-list {
     flex-direction: row;

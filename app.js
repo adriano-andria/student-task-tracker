@@ -24,20 +24,29 @@ app.get("/dashboard.html", function (req, res) {
 // Dynamic dashboard
 app.get("/dashboard", function (req, res) {
   let taskItemsHtml = "";
+
   for (let i = 0; i < tasks.length; i = i + 1) {
     const task = tasks[i];
 
+    let dueText = task.due;
+    if (!dueText) {
+      dueText = "No due date";
+    }
+
     taskItemsHtml =
       taskItemsHtml +
-      `<li>
-        <a href="/tasks/${task.id}">${task.title}</a>
+      `<li class="task-item">
+        <a class="task-title" href="/tasks/${task.id}">${task.title}</a>
+        <div class="task-meta">
+          <span><strong>Due:</strong> ${dueText}</span>
+          <span><strong>Priority:</strong> ${task.priority}</span>
+        </div>
       </li>`;
-  }
+  } 
 
   let emptyStateHtml = "";
   if (tasks.length === 0) {
-    emptyStateHtml =
-      '<p class="empty-state">No tasks yet.</p>';
+    emptyStateHtml = '<p class="empty-state">No tasks yet.</p>';
   }
 
   res.send(`
