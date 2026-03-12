@@ -61,7 +61,7 @@ app.get("/tasks/:id", function (req, res) {
 
   if (task === null) {
     res.status(404);
-    res.send("<h1>Task not found</h1><p>No task with that id.</p>");
+    res.render("not-found", { message: "No task with that id." });
     return;
   }
 
@@ -70,29 +70,7 @@ app.get("/tasks/:id", function (req, res) {
     dueText = "No due date";
   }
 
-  res.send(`
-    <!doctype html>
-    <html lang="en">
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Task ${task.id}</title>
-        <link rel="stylesheet" href="/styles.css" />
-      </head>
-      <body>
-        <main class="site-main" id="main">
-          <h2>Task Details</h2>
-          <div class="auth-form">
-            <p><strong>ID:</strong> ${task.id}</p>
-            <p><strong>Title:</strong> ${task.title}</p>
-            <p><strong>Due:</strong> ${dueText}</p>
-            <p><strong>Priority:</strong> ${task.priority}</p>
-            <p><a href="/dashboard">Back to dashboard</a></p>
-          </div>
-        </main>
-      </body>
-    </html>
-  `);
+  res.render("task", { task: task, dueText: dueText });
 });
 
 // Create a task
