@@ -5,6 +5,7 @@ app.set("view engine", "ejs");
 const PORT = 3000;
 
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 const tasks = [];
 let nextId = 1;
@@ -95,6 +96,43 @@ app.post("/tasks", function (req, res) {
   tasks.push(newTask);
 
   res.redirect("/tasks/" + newTask.id);
+});
+
+
+app.post("/api/tasks", function (req, res) {
+  const title = req.body.title;
+  const due = req.body.due;
+  const priority = req.body.priority;
+
+  if (!title || title.trim() === "") {
+    res.status(400);
+    res.json({ error: "Title is required." });
+    return;
+  }
+
+  if (priority !== "low" && priority !== "medium" && priority !== "high") {
+    res.status(400);
+    res.json({ error: "Priority must be low, medium, or high." });
+    return;
+  }
+
+  let savedDue = due;
+  if (!savedDue) {
+    savedDue = "";
+  }
+
+  const newTask = {
+    id: nextId,
+    title: title.trim(),
+    due: savedDue,
+    priority: priority,
+  };
+
+  nextId = nextId + 1;
+  tasks.push(newTask);
+
+  res.status(201);
+  res.json({ task: newTask });
 });
 
 app.use(express.static("public"));
