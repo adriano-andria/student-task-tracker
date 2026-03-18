@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Task Tracker Dashboard</title>
     <link rel="stylesheet" href="/styles.css" />
+    <script src="/dashboard.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
@@ -26,7 +27,7 @@
         <section class="panel" aria-labelledby="add-task-title">
           <h3 id="add-task-title">Add a task</h3>
 
-          <form class="auth-form" action="/tasks" method="post">
+          <form id="add-task-form" class="auth-form" action="/tasks" method="post">
             <p>Create a new task</p>
 
             <div class="field">
@@ -64,10 +65,10 @@
           <h3 id="task-list-title">Your Tasks</h3>
 
           <% if (tasks.length === 0) { %>
-            <p class="empty-state">No tasks yet.</p>
+            <p id="empty-state" class="empty-state">No tasks yet.</p>
           <% } %>
 
-          <ul class="task-list" aria-label="Task list">
+          <ul id="task-list" class="task-list" aria-label="Task list">
             <% for (const task of tasks) { %>
               <li class="task-item">
                 <a class="task-title" href="/tasks/<%= task.id %>"><%= task.title %></a>
