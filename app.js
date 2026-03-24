@@ -1,7 +1,10 @@
+import "dotenv/config";
 import express from "express";
+import mongoose from "mongoose";
 
 const app = express();
 app.set("view engine", "ejs");
+
 const PORT = 3000;
 
 app.use(express.urlencoded({ extended: false }));
@@ -74,7 +77,7 @@ app.get("/tasks/:id", function (req, res) {
   res.render("task", { task: task, dueText: dueText });
 });
 
-// Create a task
+// Create a task (form submit)
 app.post("/tasks", function (req, res) {
   const title = req.body.title;
   const due = req.body.due;
@@ -98,7 +101,7 @@ app.post("/tasks", function (req, res) {
   res.redirect("/tasks/" + newTask.id);
 });
 
-
+// Create a task (JSON API)
 app.post("/api/tasks", function (req, res) {
   const title = req.body.title;
   const due = req.body.due;
@@ -137,6 +140,26 @@ app.post("/api/tasks", function (req, res) {
 
 app.use(express.static("public"));
 
-app.listen(PORT, function () {
-  console.log("Task Tracker running at http://localhost:" + PORT);
-});
+//Connect MongoDB, then start server
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error("Missing MONGODB_URI environment variable");
+  process.exit(1);
+}
+
+async function startServer() {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log("Connected to MongoDB");
+
+    app.listen(PORT, function () {
+      console.log("Task Tracker running at http://localhost:" + PORT);
+    });
+  } catch (err) {
+    console.error("MongoDB connection error:", err.message);
+    process.exit(1);
+  }
+}
+
+startServer();
