@@ -1,16 +1,16 @@
 Project idea for SE_19 & SE_01 LU Assessments:
 Student Task Tracker (Multi-User)
 A web application where:
--Users can register and log in
--Each user has their own private tasks
--Users can create, edit, delete, and complete tasks
--Data is stored securely in a database
--Frontend dynamically updates based on backend responses
+- Users can register and log in
+- Each user has their own private tasks
+- Users can create, edit, delete, and complete tasks
+- Data is stored securely in a database
+- Frontend dynamically updates based on backend responses
 
 # (Hand-in 1)
 
 ## Overview
-- This is a front-end prototype for a Task Tracker web app.  
+- This is a front-end prototype for a Task Tracker web app.
 - Hand-in 1 focuses on HTML and CSS only
 
 The prototype includes:
@@ -21,7 +21,6 @@ The prototype includes:
 ## Files
 - `index.html` — Login page
 - `register.html` — Registration page
-- `dashboard.html` — Dashboard page
 - `styles.css` — Shared styling for all pages
 
 ## How to run
@@ -55,33 +54,35 @@ The site is responsive using CSS media queries (breakpoints):
   - Page padding increases for larger screens.
   - Dashboard layout switches to two columns.
 
-
 # (Hand-in 2)
 
 ## Overview
-This project now runs as a simple Node/Express web app.
+This project now runs as a Node/Express web app with MongoDB (Mongoose).
 
 Current functionality:
 - Serves the static pages from `public/` (Login + Register pages still exist as static HTML)
-- Provides a **server-rendered** Dashboard at `/dashboard` that lists tasks
+- Provides a **server-rendered** Dashboard at `/dashboard` (EJS) that lists tasks from the database
 - Supports creating tasks via a form POST and viewing a task details page
-- Uses **in-memory storage** (tasks reset when the server restarts)
+- Supports creating tasks via a JSON API (used by client-side dashboard JavaScript)
 
 ## Routes
 Page / UI routes:
 - `GET /` → redirects to `/index.html`
 - `GET /register` → redirects to `/register.html`
-- `GET /dashboard` → dynamic dashboard page (server-rendered HTML)
-- `GET /dashboard.html` → redirects to `/dashboard`
+- `GET /dashboard` → dashboard page (server-rendered via EJS)
 
 Task routes:
-- `POST /tasks` → create a task, then redirect to `/tasks/:id`
+- `POST /tasks` → create a task (form submit), then redirect to `/tasks/:id`
 - `GET /tasks/:id` → view a single task (404 if not found)
+
+API routes:
+- `POST /api/tasks` → create a task (JSON), returns `{ task: ... }`
 
 ## How to run (Express version)
 1. Install Node.js (version 18 or newer).
 2. Download/clone this project and open a terminal in the project folder.
-3. Install dependencies: npm install
-4. Start the server: npm run dev
-5. Open in your browser: http://localhost:3000/
-
+3. Create a `.env` file with your Mongo connection string:
+   - `MONGODB_URI=your_mongodb_connection_string_here`
+4. Install dependencies: `npm install`
+5. Start the server: `npm run dev`
+6. Open in your browser: http://localhost:3000/
