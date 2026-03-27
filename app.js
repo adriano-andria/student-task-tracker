@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static("public"));
 
-// Page routes
+// Static page routes
 app.get("/", function(request, response){
   response.redirect("/index.html");
 });
@@ -55,7 +55,7 @@ app.get("/dashboard", async function(request, response) {
 // Dynamic route
 app.get("/tasks/:id", async function(request, response) {
   try {
-    const taskId = req.params.id;
+    const taskId = request.params.id;
     const task = await Task.findById(taskId);
 
     if (!task) {
@@ -87,9 +87,9 @@ app.get("/tasks/:id", async function(request, response) {
 // Create a task (form submit)
 app.post("/tasks", async function(request, response) {
   try {
-    const title = req.body.title;
-    const due = req.body.due;
-    const priority = req.body.priority;
+    const title = request.body.title;
+    const due = request.body.due;
+    const priority = request.body.priority;
 
     if (!title || title.trim() === "") {
       response.status(400);
@@ -121,9 +121,9 @@ app.post("/tasks", async function(request, response) {
 // Create a task (JSON API)
 app.post("/api/tasks", async function(request, response) {
   try {
-    const title = req.body.title;
-    const due = req.body.due;
-    const priority = req.body.priority;
+    const title = request.body.title;
+    const due = request.body.due;
+    const priority = request.body.priority;
 
     if (!title || title.trim() === "") {
       response.status(400);
@@ -157,6 +157,91 @@ app.post("/api/tasks", async function(request, response) {
   } catch (err) {
     response.status(500);
     response.json({ error: "Could not create task." });
+  }
+});
+
+//Delete tasks
+app.post("/tasks/:id/delete", async function (request, response) {
+  try {
+    const taskId = request.params.id;
+
+    const deleted = await Task.findByIdAndDelete(taskId);
+
+    if (!deleted) {
+      response.status(404);
+      response.render("not-found", { message: "No task with that id." });
+      return;
+    }
+
+    response.redirect("/dashboard");
+  } catch (err) {
+    response.status(400);
+    response.render("not-found", { message: "Invalid task id." });
+  }
+});
+
+//Edit tasks
+app.get("/tasks/:id/edit", async function (request, response) {
+  try {
+    const taskId = request.params.id;
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      response.status(404);
+      response.render("not-found", { message: "No task with that id." });
+      return;
+    }
+
+    response.render("edit-task", {
+      task: {
+        id: task._id.toString(),
+        title: task.title,
+        due: task.due,
+        priority: task.priority,
+      },
+    });
+  } catch (err) {
+    response.status(400);
+    response.render("not-found", { message: "Invalid task id." });
+  }
+});
+
+app.post("/tasks/:id", async function (request, response) {
+  try {
+    const taskId = request.params.id;
+
+    const title = request.body.title;
+    const due = request.body.due;
+    const priority = request.body.priority;
+
+    if (!title || title.trim() === "") {
+      response.status(400);
+      response.send("<h1>Bad request</h1><p>Title is required.</p>");
+      return;
+    }
+
+    if (priority !== "low" && priority !== "medium" && priority !== "high") {
+      response.status(400);
+      response.send("<h1>Bad request</h1><p>Priority must be low, medium, or high.</p>");
+      return;
+    }
+
+    const updated = await Task.findByIdAndUpdate(
+      taskId,
+      { title: title.trim(), due: due ? due : "", priority },
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      response.status(404);
+      response.render("not-found", { message: "No task with that id." });
+      return;
+    }
+
+    response.redirect("/tasks/" + updated._id.toString());
+  } catch (err) {
+    response.status(400);
+    response.render("not-found", { message: "Invalid task id." });
   }
 });
 

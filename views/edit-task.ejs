@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Task</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Task Tracker</h1>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <ul class="nav-list">
+          <li><a href="/index.html">Login</a></li>
+          <li><a href="/register.html">Register</a></li>
+          <li><a href="/dashboard">Dashboard</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="site-main" id="main">
+      <h2>Edit Task</h2>
+
+      <form class="auth-form" action="/tasks/<%= task.id %>" method="post">
+        <div class="field">
+          <label for="task-name">Task name:</label>
+          <input id="task-name" name="title" type="text" required value="<%= task.title %>" />
+        </div>
+
+        <div class="field">
+          <label for="task-due">Due date:</label>
+          <input id="task-due" name="due" type="date" value="<%= task.due %>" />
+        </div>
+
+        <div class="field">
+          <label for="task-priority">Priority</label>
+          <select id="task-priority" name="priority" required>
+            <option value="low" <%= task.priority === "low" ? "selected" : "" %>>Low</option>
+            <option value="medium" <%= task.priority === "medium" ? "selected" : "" %>>Medium</option>
+            <option value="high" <%= task.priority === "high" ? "selected" : "" %>>High</option>
+          </select>
+        </div>
+
+        <button class="btn" type="submit">Save changes</button>
+        <p><a href="/tasks/<%= task.id %>">Cancel</a></p>
+      </form>
+    </main>
+  </body>
+</html>

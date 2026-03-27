@@ -27,6 +27,10 @@
         <p><strong>Title:</strong> <%= task.title %></p>
         <p><strong>Due:</strong> <%= dueText %></p>
         <p><strong>Priority:</strong> <%= task.priority %></p>
+        <p><a href="/tasks/<%= task.id %>/edit">Edit task</a></p>
+        <form action="/tasks/<%= task.id %>/delete" method="post">
+          <button class="btn" type="submit">Delete task</button>
+        </form>
         <p><a href="/dashboard">Back to dashboard</a></p>
       </div>
     </main>
