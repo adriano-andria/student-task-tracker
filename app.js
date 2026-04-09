@@ -1,3 +1,5 @@
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
@@ -13,6 +15,24 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static("public"));
+
+if (!process.env.SESSION_SECRET) {
+  console.error("Missing SESSION_SECRET environment variable");
+  process.exit(1);
+}
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
+  })
+);
 
 // Static page routes
 app.get("/", function(request, response){
