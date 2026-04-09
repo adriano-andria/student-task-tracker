@@ -11,9 +11,18 @@
       <h1>Task Tracker</h1>
       <nav class="site-nav" aria-label="Primary navigation">
         <ul class="nav-list">
-          <li><a href="/index.html">Login</a></li>
-          <li><a href="/register.html">Register</a></li>
-          <li><a href="/dashboard">Dashboard</a></li>
+          <% if (currentUser) { %>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li>
+              <form action="/logout" method="post">
+                <button class="btn" type="submit">Logout</button>
+              </form>
+            </li>
+          <% } else { %>
+            <li><a href="/index.html">Login</a></li>
+            <li><a href="/register.html">Register</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+          <% } %>
         </ul>
       </nav>
     </header>

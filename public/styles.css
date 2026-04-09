@@ -236,3 +236,20 @@ a:hover {
     flex: 1;
   }
 }
+
+/* Logged-in status badge */
+.login-status {
+  display: inline-block;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: rgba(179, 139, 255, 0.12);
+  border: 1px dashed rgba(179, 139, 255, 0.5);
+  color: #d9d2ee;
+  font-size: 0.95rem;
+}
+
+.login-name {
+  font-weight: 700;
+  color: #f4f1ff;
+}

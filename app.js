@@ -44,6 +44,11 @@ app.use(
   })
 );
 
+app.use(function (request, response, next) {
+  response.locals.currentUser = request.session.user || null;
+  next();
+});
+
 // Static page routes
 app.get("/", function(request, response){
   response.redirect("/index.html");
@@ -73,6 +78,11 @@ app.post("/register", async function (request, response) {
     });
 
     request.session.userId = user._id.toString();
+    request.session.user = {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+    };
 
     response.redirect("/dashboard");
   } catch (err) {
@@ -105,6 +115,11 @@ app.post("/login", async function (request, response) {
     }
 
     request.session.userId = user._id.toString();
+    request.session.user = {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+    };
 
     response.redirect("/dashboard");
   } catch (err) {
