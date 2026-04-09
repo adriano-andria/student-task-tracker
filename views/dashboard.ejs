@@ -13,8 +13,7 @@
       <h1>Task Tracker</h1>
       <nav class="site-nav" aria-label="Primary navigation">
         <ul class="nav-list">
-          <% if (currentUser) { %>
-            <li><a href="/dashboard" aria-current="page">Dashboard</a></li>
+          <% if (currentUser) { %>           
             <li>
               <form action="/logout" method="post">
                 <button class="btn" type="submit">Logout</button>
