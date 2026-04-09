@@ -4,6 +4,8 @@ import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import Task from "./models/Task.js";
+import bcrypt from "bcrypt";
+import User from "./models/User.js";
 
 const app = express();
 const PORT = 3000;
@@ -41,6 +43,72 @@ app.get("/", function(request, response){
 
 app.get("/register", function(request, response){
   response.redirect("/register.html");
+});
+
+app.post("/register", async function (request, response) {
+  try {
+    const name = request.body.name;
+    const email = request.body.email;
+    const password = request.body.password;
+
+    if (!name || !email || !password) {
+      response.status(400).send("Missing required fields.");
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      passwordHash: passwordHash,
+    });
+
+    request.session.userId = user._id.toString();
+
+    response.redirect("/dashboard");
+  } catch (err) {
+    response.status(400).send("Could not register (email may already exist).");
+  }
+});
+
+app.post("/login", async function (request, response) {
+  try {
+    const email = request.body.email;
+    const password = request.body.password;
+
+    if (!email || !password) {
+      response.status(400).send("Email and password are required.");
+      return;
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+
+    if (!user) {
+      response.status(401).send("Invalid email or password.");
+      return;
+    }
+
+    const ok = await bcrypt.compare(password, user.passwordHash);
+
+    if (!ok) {
+      response.status(401).send("Invalid email or password.");
+      return;
+    }
+
+    request.session.userId = user._id.toString();
+
+    response.redirect("/dashboard");
+  } catch (err) {
+    response.status(500).send("Server error.");
+  }
+});
+
+app.post("/logout", function (request, response) {
+  request.session.destroy(() => {
+    response.clearCookie("connect.sid", { path: "/" });
+    response.redirect("/index.html");
+  });
 });
 
 // Dynamic dashboard route (SSR)
