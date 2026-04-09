@@ -280,8 +280,9 @@ app.post("/api/tasks", requireAuth, async function(request, response) {
 app.post("/tasks/:id/delete", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
+    const ownerId = request.session.userId;
 
-    const deleted = await Task.findOneAndDelete({_id, ownerId });
+    const deleted = await Task.findOneAndDelete({ _id: taskId, ownerId });
 
     if (!deleted) {
       response.status(404);
@@ -327,6 +328,7 @@ app.get("/tasks/:id/edit", requireAuth, async function (request, response) {
 app.post("/tasks/:id", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
+    const ownerId = request.session.userId;
 
     const title = request.body.title;
     const due = request.body.due;
@@ -345,7 +347,7 @@ app.post("/tasks/:id", requireAuth, async function (request, response) {
     }
 
     const updated = await Task.findOneAndUpdate(
-      { _id, ownerId },
+      { _id: taskId, ownerId },
       { title: title.trim(), due: due ? due : "", priority },
       { new: true, runValidators: true }
     );
