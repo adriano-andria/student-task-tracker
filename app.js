@@ -18,6 +18,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static("public"));
 
+function requireAuth(request, response, next) {
+  if (!request.session.userId) {
+    response.redirect("/index.html");
+    return;
+  }
+  next();
+}
+
 if (!process.env.SESSION_SECRET) {
   console.error("Missing SESSION_SECRET environment variable");
   process.exit(1);
@@ -112,9 +120,10 @@ app.post("/logout", function (request, response) {
 });
 
 // Dynamic dashboard route (SSR)
-app.get("/dashboard", async function(request, response) {
+app.get("/dashboard", requireAuth, async function(request, response) {
   try {
-    const tasksFromDb = await Task.find().sort({ createdAt: -1 });
+    const userId = request.session.userId;
+    const tasksFromDb = await Task.find({ ownerId: userId }).sort({ createdAt: -1 });
     const tasksForView = [];
 
     for (let i = 0; i < tasksFromDb.length; i = i + 1) {
@@ -140,10 +149,11 @@ app.get("/dashboard", async function(request, response) {
 });
 
 // Task details route (SSR)
-app.get("/tasks/:id", async function(request, response) {
+app.get("/tasks/:id", requireAuth, async function(request, response) {
   try {
     const taskId = request.params.id;
-    const task = await Task.findById(taskId);
+    const userId = request.session.userId;
+    const task = await Task.findOne({ _id: taskId, ownerId: userId });
 
     if (!task) {
       response.status(404);
@@ -172,11 +182,12 @@ app.get("/tasks/:id", async function(request, response) {
 });
 
 // Create task (CRUD): form submit -> create in DB -> redirect to /tasks/:id
-app.post("/tasks", async function(request, response) {
+app.post("/tasks", requireAuth, async function(request, response) {
   try {
     const title = request.body.title;
     const due = request.body.due;
     const priority = request.body.priority;
+    const userId = request.session.userId;
 
     if (!title || title.trim() === "") {
       response.status(400);
@@ -196,6 +207,7 @@ app.post("/tasks", async function(request, response) {
       title: title.trim(),
       due: savedDue,
       priority: priority,
+      ownerId: userId,
     });
 
     response.redirect("/tasks/" + newTask._id.toString());
@@ -206,11 +218,12 @@ app.post("/tasks", async function(request, response) {
 });
 
 // Create task (CRUD): JSON API -> create in DB -> return JSON
-app.post("/api/tasks", async function(request, response) {
+app.post("/api/tasks", requireAuth, async function(request, response) {
   try {
     const title = request.body.title;
     const due = request.body.due;
     const priority = request.body.priority;
+    const userId = request.session.userId;
 
     if (!title || title.trim() === "") {
       response.status(400);
@@ -230,6 +243,7 @@ app.post("/api/tasks", async function(request, response) {
       title: title.trim(),
       due: savedDue,
       priority: priority,
+      ownerId: userId,
     });
 
     response.status(201);
@@ -248,11 +262,11 @@ app.post("/api/tasks", async function(request, response) {
 });
 
 //Delete tasks (CRUD)
-app.post("/tasks/:id/delete", async function (request, response) {
+app.post("/tasks/:id/delete", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
 
-    const deleted = await Task.findByIdAndDelete(taskId);
+    const deleted = await Task.findOneAndDelete({_id, ownerId });
 
     if (!deleted) {
       response.status(404);
@@ -268,10 +282,11 @@ app.post("/tasks/:id/delete", async function (request, response) {
 });
 
 // Edit form (SSR): show edit page for one task
-app.get("/tasks/:id/edit", async function (request, response) {
+app.get("/tasks/:id/edit", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
-    const task = await Task.findById(taskId);
+    const userId = request.session.userId;
+    const task = await Task.findOne({ _id: taskId, ownerId: userId });
 
     if (!task) {
       response.status(404);
@@ -294,7 +309,7 @@ app.get("/tasks/:id/edit", async function (request, response) {
 });
 
 // Update a task (CRUD): form submit -> update in DB -> redirect
-app.post("/tasks/:id", async function (request, response) {
+app.post("/tasks/:id", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
 
@@ -314,8 +329,8 @@ app.post("/tasks/:id", async function (request, response) {
       return;
     }
 
-    const updated = await Task.findByIdAndUpdate(
-      taskId,
+    const updated = await Task.findOneAndUpdate(
+      { _id, ownerId },
       { title: title.trim(), due: due ? due : "", priority },
       { new: true, runValidators: true }
     );
