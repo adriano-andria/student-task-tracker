@@ -23,7 +23,7 @@ app.get("/register", function(request, response){
   response.redirect("/register.html");
 });
 
-// Dynamic dashboard
+// Dynamic dashboard route (SSR)
 app.get("/dashboard", async function(request, response) {
   try {
     const tasksFromDb = await Task.find().sort({ createdAt: -1 });
@@ -31,7 +31,6 @@ app.get("/dashboard", async function(request, response) {
 
     for (let i = 0; i < tasksFromDb.length; i = i + 1) {
       const task = tasksFromDb[i];
-
       let dueText = task.due;
       if (!dueText) {
         dueText = "No due date";
@@ -52,7 +51,7 @@ app.get("/dashboard", async function(request, response) {
   }
 });
 
-// Dynamic route
+// Task details route (SSR)
 app.get("/tasks/:id", async function(request, response) {
   try {
     const taskId = request.params.id;
@@ -84,7 +83,7 @@ app.get("/tasks/:id", async function(request, response) {
   }
 });
 
-// Create a task (form submit)
+// Create task (CRUD): form submit -> create in DB -> redirect to /tasks/:id
 app.post("/tasks", async function(request, response) {
   try {
     const title = request.body.title;
@@ -118,7 +117,7 @@ app.post("/tasks", async function(request, response) {
   }
 });
 
-// Create a task (JSON API)
+// Create task (CRUD): JSON API -> create in DB -> return JSON
 app.post("/api/tasks", async function(request, response) {
   try {
     const title = request.body.title;
@@ -160,7 +159,7 @@ app.post("/api/tasks", async function(request, response) {
   }
 });
 
-//Delete tasks
+//Delete tasks (CRUD)
 app.post("/tasks/:id/delete", async function (request, response) {
   try {
     const taskId = request.params.id;
@@ -180,7 +179,7 @@ app.post("/tasks/:id/delete", async function (request, response) {
   }
 });
 
-//Edit tasks
+// Edit form (SSR): show edit page for one task
 app.get("/tasks/:id/edit", async function (request, response) {
   try {
     const taskId = request.params.id;
@@ -206,6 +205,7 @@ app.get("/tasks/:id/edit", async function (request, response) {
   }
 });
 
+// Update a task (CRUD): form submit -> update in DB -> redirect
 app.post("/tasks/:id", async function (request, response) {
   try {
     const taskId = request.params.id;
