@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static("public"));
 
+// Authentication middleware: only allow logged-in users to continue
 function requireAuth(request, response, next) {
   if (!request.session.userId) {
     response.redirect("/index.html");
@@ -26,6 +27,7 @@ function requireAuth(request, response, next) {
   next();
 }
 
+// Save the logged-in user's details in the session
 function setSessionUser(request, user) {
   request.session.userId = user._id.toString();
   request.session.user = {
@@ -35,6 +37,7 @@ function setSessionUser(request, user) {
   };
 }
 
+// Return fallback text when a task has no due date
 function getDueText(due) {
   if (!due) {
     return "No due date";
@@ -42,6 +45,7 @@ function getDueText(due) {
   return due;
 }
 
+// Reuse the same task validation for create and update routes
 function validateTask(title, priority) {
   if (!title || title.trim() === "") {
     return "Title is required.";
@@ -72,6 +76,7 @@ app.use(
   })
 );
 
+// Make the logged-in user available in all EJS templates
 app.use(function (request, response, next) {
   response.locals.currentUser = request.session.user || null;
   next();
@@ -86,6 +91,7 @@ app.get("/register", function (request, response) {
   response.redirect("/register.html");
 });
 
+// Auth routes
 app.post("/register", async function (request, response) {
   try {
     const name = request.body.name;
@@ -164,6 +170,7 @@ app.get("/dashboard", requireAuth, async function (request, response) {
 
     const tasksForView = [];
 
+    // Convert database tasks into simpler data for the EJS view
     for (let i = 0; i < tasksFromDb.length; i = i + 1) {
       const task = tasksFromDb[i];
 
@@ -288,6 +295,7 @@ app.post("/tasks/:id/delete", requireAuth, async function (request, response) {
     const taskId = request.params.id;
     const ownerId = request.session.userId;
 
+    // Only delete a task if it belongs to the logged-in user
     const deleted = await Task.findOneAndDelete({ _id: taskId, ownerId });
 
     if (!deleted) {
@@ -348,6 +356,7 @@ app.post("/tasks/:id", requireAuth, async function (request, response) {
       return;
     }
 
+    // Only update a task if it belongs to the logged-in user
     const updated = await Task.findOneAndUpdate(
       { _id: taskId, ownerId },
       { title: title.trim(), due: due ? due : "", priority: priority },
