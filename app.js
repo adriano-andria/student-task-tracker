@@ -26,6 +26,34 @@ function requireAuth(request, response, next) {
   next();
 }
 
+function setSessionUser(request, user) {
+  request.session.userId = user._id.toString();
+  request.session.user = {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+  };
+}
+
+function getDueText(due) {
+  if (!due) {
+    return "No due date";
+  }
+  return due;
+}
+
+function validateTask(title, priority) {
+  if (!title || title.trim() === "") {
+    return "Title is required.";
+  }
+
+  if (priority !== "low" && priority !== "medium" && priority !== "high") {
+    return "Priority must be low, medium, or high.";
+  }
+
+  return null;
+}
+
 if (!process.env.SESSION_SECRET) {
   console.error("Missing SESSION_SECRET environment variable");
   process.exit(1);
@@ -39,7 +67,7 @@ app.use(
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
     cookie: {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
@@ -50,11 +78,11 @@ app.use(function (request, response, next) {
 });
 
 // Static page routes
-app.get("/", function(request, response){
+app.get("/", function (request, response) {
   response.redirect("/index.html");
 });
 
-app.get("/register", function(request, response){
+app.get("/register", function (request, response) {
   response.redirect("/register.html");
 });
 
@@ -63,9 +91,15 @@ app.post("/register", async function (request, response) {
     const name = request.body.name;
     const email = request.body.email;
     const password = request.body.password;
+    const confirmPassword = request.body.confirmPassword;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
       response.status(400).send("Missing required fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      response.status(400).send("Passwords do not match.");
       return;
     }
 
@@ -77,13 +111,7 @@ app.post("/register", async function (request, response) {
       passwordHash: passwordHash,
     });
 
-    request.session.userId = user._id.toString();
-    request.session.user = {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-    };
-
+    setSessionUser(request, user);
     response.redirect("/dashboard");
   } catch (err) {
     response.status(400).send("Could not register (email may already exist).");
@@ -114,13 +142,7 @@ app.post("/login", async function (request, response) {
       return;
     }
 
-    request.session.userId = user._id.toString();
-    request.session.user = {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-    };
-
+    setSessionUser(request, user);
     response.redirect("/dashboard");
   } catch (err) {
     response.status(500).send("Server error.");
@@ -134,25 +156,22 @@ app.post("/logout", function (request, response) {
   });
 });
 
-// Dynamic dashboard route (SSR)
-app.get("/dashboard", requireAuth, async function(request, response) {
+// Dashboard route
+app.get("/dashboard", requireAuth, async function (request, response) {
   try {
     const userId = request.session.userId;
     const tasksFromDb = await Task.find({ ownerId: userId }).sort({ createdAt: -1 });
+
     const tasksForView = [];
 
     for (let i = 0; i < tasksFromDb.length; i = i + 1) {
       const task = tasksFromDb[i];
-      let dueText = task.due;
-      if (!dueText) {
-        dueText = "No due date";
-      }
 
       tasksForView.push({
         id: task._id.toString(),
         title: task.title,
         priority: task.priority,
-        dueText: dueText,
+        dueText: getDueText(task.due),
       });
     }
 
@@ -163,8 +182,8 @@ app.get("/dashboard", requireAuth, async function(request, response) {
   }
 });
 
-// Task details route (SSR)
-app.get("/tasks/:id", requireAuth, async function(request, response) {
+// Task details route
+app.get("/tasks/:id", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
     const userId = request.session.userId;
@@ -176,11 +195,6 @@ app.get("/tasks/:id", requireAuth, async function(request, response) {
       return;
     }
 
-    let dueText = task.due;
-    if (!dueText) {
-      dueText = "No due date";
-    }
-
     response.render("task", {
       task: {
         id: task._id.toString(),
@@ -188,7 +202,7 @@ app.get("/tasks/:id", requireAuth, async function(request, response) {
         due: task.due,
         priority: task.priority,
       },
-      dueText: dueText,
+      dueText: getDueText(task.due),
     });
   } catch (err) {
     response.status(400);
@@ -196,23 +210,19 @@ app.get("/tasks/:id", requireAuth, async function(request, response) {
   }
 });
 
-// Create task (CRUD): form submit -> create in DB -> redirect to /tasks/:id
-app.post("/tasks", requireAuth, async function(request, response) {
+// Create task from form
+app.post("/tasks", requireAuth, async function (request, response) {
   try {
     const title = request.body.title;
     const due = request.body.due;
     const priority = request.body.priority;
     const userId = request.session.userId;
 
-    if (!title || title.trim() === "") {
-      response.status(400);
-      response.send("<h1>Bad request</h1><p>Title is required.</p>");
-      return;
-    }
+    const validationError = validateTask(title, priority);
 
-    if (priority !== "low" && priority !== "medium" && priority !== "high") {
+    if (validationError) {
       response.status(400);
-      response.send("<h1>Bad request</h1><p>Priority must be low, medium, or high.</p>");
+      response.send("<h1>Bad request</h1><p>" + validationError + "</p>");
       return;
     }
 
@@ -232,23 +242,19 @@ app.post("/tasks", requireAuth, async function(request, response) {
   }
 });
 
-// Create task (CRUD): JSON API -> create in DB -> return JSON
-app.post("/api/tasks", requireAuth, async function(request, response) {
+// Create task from JSON API
+app.post("/api/tasks", requireAuth, async function (request, response) {
   try {
     const title = request.body.title;
     const due = request.body.due;
     const priority = request.body.priority;
     const userId = request.session.userId;
 
-    if (!title || title.trim() === "") {
-      response.status(400);
-      response.json({ error: "Title is required." });
-      return;
-    }
+    const validationError = validateTask(title, priority);
 
-    if (priority !== "low" && priority !== "medium" && priority !== "high") {
+    if (validationError) {
       response.status(400);
-      response.json({ error: "Priority must be low, medium, or high." });
+      response.json({ error: validationError });
       return;
     }
 
@@ -276,7 +282,7 @@ app.post("/api/tasks", requireAuth, async function(request, response) {
   }
 });
 
-//Delete tasks (CRUD)
+// Delete task
 app.post("/tasks/:id/delete", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
@@ -297,7 +303,7 @@ app.post("/tasks/:id/delete", requireAuth, async function (request, response) {
   }
 });
 
-// Edit form (SSR): show edit page for one task
+// Show edit page
 app.get("/tasks/:id/edit", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
@@ -324,7 +330,7 @@ app.get("/tasks/:id/edit", requireAuth, async function (request, response) {
   }
 });
 
-// Update a task (CRUD): form submit -> update in DB -> redirect
+// Update task
 app.post("/tasks/:id", requireAuth, async function (request, response) {
   try {
     const taskId = request.params.id;
@@ -334,22 +340,18 @@ app.post("/tasks/:id", requireAuth, async function (request, response) {
     const due = request.body.due;
     const priority = request.body.priority;
 
-    if (!title || title.trim() === "") {
-      response.status(400);
-      response.send("<h1>Bad request</h1><p>Title is required.</p>");
-      return;
-    }
+    const validationError = validateTask(title, priority);
 
-    if (priority !== "low" && priority !== "medium" && priority !== "high") {
+    if (validationError) {
       response.status(400);
-      response.send("<h1>Bad request</h1><p>Priority must be low, medium, or high.</p>");
+      response.send("<h1>Bad request</h1><p>" + validationError + "</p>");
       return;
     }
 
     const updated = await Task.findOneAndUpdate(
       { _id: taskId, ownerId },
-      { title: title.trim(), due: due ? due : "", priority },
-      { new: true, runValidators: true }
+      { title: title.trim(), due: due ? due : "", priority: priority },
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!updated) {
@@ -365,7 +367,7 @@ app.post("/tasks/:id", requireAuth, async function (request, response) {
   }
 });
 
-//Connect MongoDB, then start server
+// Connect MongoDB, then start server
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
