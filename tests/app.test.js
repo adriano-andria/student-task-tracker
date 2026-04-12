@@ -18,3 +18,12 @@ describe("GET /dashboard", function () {
     expect(response.headers.location).toBe("/index.html");
   });
 });
+
+describe("GET /register", function () {
+  test("redirects to /register.html", async function () {
+    const response = await request(app).get("/register").redirects(0);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/register.html");
+  });
+});
