@@ -9,3 +9,12 @@ describe("GET /", function () {
     expect(response.headers.location).toBe("/index.html");
   });
 });
+
+describe("GET /dashboard", function () {
+  test("redirects to /index.html when the user is not logged in", async function () {
+    const response = await request(app).get("/dashboard").redirects(0);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("/index.html");
+  });
+});
