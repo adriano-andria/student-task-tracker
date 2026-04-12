@@ -2,13 +2,11 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import "dotenv/config";
 import express from "express";
-import mongoose from "mongoose";
 import Task from "./models/Task.js";
 import bcrypt from "bcrypt";
 import User from "./models/User.js";
 
 const app = express();
-const PORT = 3000;
 
 // Config
 app.set("view engine", "ejs");
@@ -376,26 +374,4 @@ app.post("/tasks/:id", requireAuth, async function (request, response) {
   }
 });
 
-// Connect MongoDB, then start server
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  console.error("Missing MONGODB_URI environment variable");
-  process.exit(1);
-}
-
-async function startServer() {
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
-
-    app.listen(PORT, function () {
-      console.log("Task Tracker running at http://localhost:" + PORT);
-    });
-  } catch (err) {
-    console.error("MongoDB connection error:", err.message);
-    process.exit(1);
-  }
-}
-
-startServer();
+export default app;
