@@ -18,4 +18,10 @@ describe("validateTask", function () {
 
     expect(result).toBe("Priority must be low, medium, or high.");
   });
+
+  test("returns an error when title is only spaces", function () {
+    const result = validateTask("   ", "medium");
+
+    expect(result).toBe("Title is required.");
+  });
 });
