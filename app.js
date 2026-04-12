@@ -15,7 +15,6 @@ app.set("view engine", "ejs");
 // Middlewares
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(express.static("public"));
 
 // Authentication middleware: only allow logged-in users to continue
 function requireAuth(request, response, next) {
@@ -44,23 +43,26 @@ function getDueText(due) {
   return due;
 }
 
-if (!process.env.SESSION_SECRET) {
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV !== "test") {
   console.error("Missing SESSION_SECRET environment variable");
   process.exit(1);
 }
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-    cookie: {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    },
-  })
-);
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || "test-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
+};
+
+if (process.env.NODE_ENV !== "test") {
+  sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGODB_URI });
+}
+
+app.use(session(sessionConfig));
 
 // Make the logged-in user available in all EJS templates
 app.use(function (request, response, next) {
@@ -77,6 +79,7 @@ app.get("/register", function (request, response) {
   response.redirect("/register.html");
 });
 
+app.use(express.static("public"));
 // Auth routes
 app.post("/register", async function (request, response) {
   try {
