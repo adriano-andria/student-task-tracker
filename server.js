@@ -4,6 +4,13 @@ import app from "./app.js";
 
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
+console.log("MONGODB_URI is set:", !!process.env.MONGODB_URI);
+console.log("MONGODB_URI prefix:", String(process.env.MONGODB_URI || "").slice(0, 15));
+console.log(
+  "MONGODB_URI contains /task_tracker:",
+  String(process.env.MONGODB_URI || "").includes("/task_tracker")
+);
+
 
 if (!MONGODB_URI) {
   console.error("Missing MONGODB_URI environment variable");
