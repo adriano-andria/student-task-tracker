@@ -1,7 +1,7 @@
 # Task Tracker
 
 ## Live Demo
-[View the deployed app](https://student-task-tracker-gsmg.onrender.com)
+[View the deployed app here](https://student-task-tracker-gsmg.onrender.com)
 
 ---
 
@@ -63,29 +63,29 @@ Users can create, view, edit, and delete tasks through a simple dashboard interf
 ## Installation and Setup
 
 ### 1. Clone the repository
-git clone https://github.com/adriano-andria/student-task-tracker.git
-cd student-task-tracker
+- git clone https://github.com/adriano-andria/student-task-tracker.git
+- cd student-task-tracker
 
 ### 2. Install dependencies
-npm install
+- npm install
 
 ### 3. Create a .env file
 Add the following to a .env file in the root folder:
 
-MONGODB_URI=your-mongodb-uri
-SESSION_SECRET=your-session-secret
+- MONGODB_URI=your-mongodb-uri
+- SESSION_SECRET=your-session-secret
 
 ### 4. Start MongoDB
-Make sure MongoDB is installed and running locally before starting the application.
+- Make sure MongoDB is installed and running locally before starting the application.
 
 ### 5. Start the app
-npm start
+- npm start
 
-For development:
+- For development:
 npm run dev
 
 ### 6. Open the project
-Visit: http://localhost:3000
+- Visit: http://localhost:3000
 
 ## How to Use
 - Register a new account
@@ -96,8 +96,8 @@ Visit: http://localhost:3000
 - Edit or delete tasks as needed
 
 ## Testing
-Automated tests using Jest and Supertest.
-To run tests: npm test
+- Automated tests using Jest and Supertest.
+- To run tests: npm test
 
 What’s currently tested:
 - validateTask unit tests
