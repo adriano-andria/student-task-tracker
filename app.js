@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import User from "./models/User.js";
 import validateTask from "./utils/validateTask.js";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
@@ -17,6 +18,19 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(helmet());
+
+//Prevent spam logins and register
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 10, // max 10 requests per window
+  message: "Too many login attempts. Please try again later.",
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  message: "Too many registration attempts. Please try again later.",
+});
 
 // Authentication middleware: only allow logged-in users to continue
 function requireAuth(request, response, next) {
@@ -57,6 +71,8 @@ const sessionConfig = {
   cookie: {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   },
 };
 
@@ -82,8 +98,9 @@ app.get("/register", function (request, response) {
 });
 
 app.use(express.static("public"));
+
 // Auth routes
-app.post("/register", async function (request, response) {
+app.post("/register", registerLimiter, async function (request, response) {
   try {
     const name = request.body.name;
     const email = request.body.email;
@@ -115,7 +132,7 @@ app.post("/register", async function (request, response) {
   }
 });
 
-app.post("/login", async function (request, response) {
+app.post("/login", loginLimiter, async function (request, response) {
   try {
     const email = request.body.email;
     const password = request.body.password;
