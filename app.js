@@ -13,6 +13,7 @@ const app = express();
 
 // Config
 app.set("view engine", "ejs");
+app.set("trust proxy", 1);
 
 // Middlewares
 app.use(express.urlencoded({ extended: false }));
@@ -68,6 +69,7 @@ const sessionConfig = {
   secret: process.env.SESSION_SECRET || "test-secret",
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
