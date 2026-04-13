@@ -1,88 +1,111 @@
-Project idea for SE_19 & SE_01 LU Assessments:
-Student Task Tracker (Multi-User)
-A web application where:
-- Users can register and log in
-- Each user has their own private tasks
-- Users can create, edit, delete, and complete tasks
-- Data is stored securely in a database
-- Frontend dynamically updates based on backend responses
+# Task Tracker
 
-# (Hand-in 1)
+## Live Demo
+[View the deployed app](https://student-task-tracker-gsmg.onrender.com)
 
-## Overview
-- This is a front-end prototype for a Task Tracker web app.
-- Hand-in 1 focuses on HTML and CSS only
+---
 
-The prototype includes:
-- A Login page
-- A Registration page
-- A Dashboard page (with an “Add task” form and an empty task list)
+## Description
 
-## Files
-- `index.html` — Login page
-- `register.html` — Registration page
-- `styles.css` — Shared styling for all pages
+Task Tracker is a full-stack web application that allows users to register, log in, and manage their own tasks.
 
-## How to run
-1. Download/open the project folder.
-2. Open `index.html` in a web browser.
-3. Use the navigation links to move between pages.
+Users can create, view, edit, and delete tasks through a simple dashboard interface. The project uses server-side rendering with EJS for the main pages and also includes client-side JavaScript so tasks can be added from the dashboard without reloading the page.
 
-*Forms do not submit real data yet.
+## Tech Stack
 
-## Features included for Hand-in 1
-### Navigation
-- Consistent header navigation across all pages.
-- The current page is highlighted using `aria-current="page"`.
+### Frontend
+- HTML
+- CSS
+- JavaScript
+- EJS
 
-### Forms
-- Login form includes email + password fields.
-- Registration form includes name, email, password, and confirm password.
+### Backend
+- Node.js
+- Express.js
 
-### Dashboard (prototype)
-- Contains an “Add a task” form (task name, due date, priority).
-- Shows an empty state message: “No tasks yet…”
+### Database
+- MongoDB
+- Mongoose
 
-### Responsive design (breakpoints)
-The site is responsive using CSS media queries (breakpoints):
+### Authentication and Sessions
+- bcrypt
+- express-session
+- connect-mongo
 
-- **600px and up**
-  - Navigation switches from vertical to horizontal.
-  - Header uses a side-by-side layout (title left, nav right).
+### Security and Middleware
+- helmet
+- express-rate-limit
 
-- **900px and up**
-  - Page padding increases for larger screens.
-  - Dashboard layout switches to two columns.
+### Development Tools
+- dotenv
+- nodemon
 
-# (Hand-in 2)
+### Testing
+- Jest
+- Supertest
 
-## Overview
-This project now runs as a Node/Express web app with MongoDB (Mongoose).
+---
 
-Current functionality:
-- Serves the static pages from `public/` (Login + Register pages still exist as static HTML)
-- Provides a **server-rendered** Dashboard at `/dashboard` (EJS) that lists tasks from the database
-- Supports creating tasks via a form POST and viewing a task details page
-- Supports creating tasks via a JSON API (used by client-side dashboard JavaScript)
+## Features
 
-## Routes
-Page / UI routes:
-- `GET /` → redirects to `/index.html`
-- `GET /register` → redirects to `/register.html`
-- `GET /dashboard` → dashboard page (server-rendered via EJS)
+- user registration
+- user login and logout
+- password hashing with bcrypt
+- session-based authentication
+- protected dashboard route
+- create, read, update, and delete tasks
+- MongoDB database storage
+- dynamic dashboard task creation using JavaScript
+- server-rendered pages with EJS
+- Rate limiting for login and registration routes
+- Secure production deployment on Render
 
-Task routes:
-- `POST /tasks` → create a task (form submit), then redirect to `/tasks/:id`
-- `GET /tasks/:id` → view a single task (404 if not found)
+## Installation and Setup
 
-API routes:
-- `POST /api/tasks` → create a task (JSON), returns `{ task: ... }`
+### 1. Clone the repository
+git clone https://github.com/adriano-andria/student-task-tracker.git
+cd student-task-tracker
 
-## How to run (Express version)
-1. Install Node.js (version 18 or newer).
-2. Download/clone this project and open a terminal in the project folder.
-3. Create a `.env` file with your Mongo connection string:
-   - `MONGODB_URI=your_mongodb_connection_string_here`
-4. Install dependencies: `npm install`
-5. Start the server: `npm run dev`
-6. Open in your browser: http://localhost:3000/
+### 2. Install dependencies
+npm install
+
+### 3. Create a .env file
+Add the following to a .env file in the root folder:
+
+MONGODB_URI=your-mongodb-uri
+SESSION_SECRET=your-session-secret
+
+### 4. Start MongoDB
+Make sure MongoDB is installed and running locally before starting the application.
+
+### 5. Start the app
+npm start
+
+For development:
+npm run dev
+
+### 6. Open the project
+Visit: http://localhost:3000
+
+## How to Use
+- Register a new account
+- Log in with your account details
+- Open the dashboard
+- Add a new task using the form
+- Click a task to view its details
+- Edit or delete tasks as needed
+
+## Testing
+Automated tests using Jest and Supertest.
+To run tests: npm test
+
+What’s currently tested:
+- validateTask unit tests
+- basic route redirects (like / and /dashboard)
+- simple UI route behavior (/register)
+
+## Deployment
+The app is deployed on Render and uses MongoDB Atlas for the production database.
+
+## Credits
+Created by Adriano
