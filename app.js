@@ -6,6 +6,7 @@ import Task from "./models/Task.js";
 import bcrypt from "bcrypt";
 import User from "./models/User.js";
 import validateTask from "./utils/validateTask.js";
+import helmet from "helmet";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.set("view engine", "ejs");
 // Middlewares
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(helmet());
 
 // Authentication middleware: only allow logged-in users to continue
 function requireAuth(request, response, next) {
