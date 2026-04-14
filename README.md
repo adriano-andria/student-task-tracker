@@ -74,13 +74,13 @@ Add the following to a .env file in the root folder:
 
 - MONGODB_URI=your-mongodb-uri
 - SESSION_SECRET=your-session-secret
+- PORT=3000
 
 ### 4. Start MongoDB
 - Make sure MongoDB is installed and running locally before starting the application.
 
 ### 5. Start the app
 - npm start
-
 - For development:
 npm run dev
 
@@ -102,10 +102,11 @@ npm run dev
 What’s currently tested:
 - validateTask unit tests
 - basic route redirects (like / and /dashboard)
-- simple UI route behavior (/register)
+- route redirects/behavior for /register
 
 ## Deployment
-The app is deployed on Render and uses MongoDB Atlas for the production database.
+- The app is deployed on Render and uses MongoDB Atlas for the production database.
+- Render environment variables are used for MONGODB_URI and SESSION_SECRET.
 
 ## Credits
 Created by Adriano
